@@ -12,6 +12,27 @@ function setQuery(evt) {
   }
 }
 
+window.addEventListener("load", () => {
+  let long;
+  let lat;
+
+  if (!!navigator.geolocation) {
+    navigator.geolocation.getCurrentPosition((position) => {
+      long = position.coords.longitude;
+      lat = position.coords.latitude;
+      const apiUrl = `${api.base}weather?lat=${lat}&lon=${long}&units=metric&appid=${api.key}`;
+      fetch(apiUrl)
+      .then((weather) => {
+        return weather.json();
+      })
+      .then(displayResults);
+    });
+
+  }
+
+});
+// https://api.openweathermap.org/data/2.5/weather?lat=44.34&lon=10.99&appid={API key}
+
 function getResults(query) {
   fetch(`${api.base}weather?q=${query}&units=metric&APPID=${api.key}`)
     .then((weather) => {
@@ -19,11 +40,9 @@ function getResults(query) {
     })
     .then(displayResults);
 }
-
 function displayResults(weather) {
   let city = document.querySelector(".location .city");
   city.innerText = `${weather.name}, ${weather.sys.country}`;
-
   let now = new Date();
   let date = document.querySelector(".location .date");
   date.innerText = dateBuilder(now);
@@ -35,8 +54,8 @@ function displayResults(weather) {
   weather_el.innerText = weather.weather[0].main;
 
   let hilow = document.querySelector(".hi-low");
-  hilow.innerText = `${Math.round(main.temp_min)}°c / ${Math.round(
-    main.temp_max
+  hilow.innerText = `${Math.round(weather.main.temp_min)}°c / ${Math.round(
+    weather.main.temp_max
   )}°c`;
 }
 
